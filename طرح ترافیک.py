@@ -9,7 +9,7 @@ class User:
         self.user_name = name
         self.car_list = []
         self.penalty_amount = 0
-        self.balance_amount = 0       
+        self.balance_amount = 0
 
 def day_counter(date):
     weekdays = ["Sat", "Sun", "Mon", "Tues", "Wed", "Thurs", "Fri"]
@@ -38,7 +38,7 @@ def day_checker(day):
 
 
 def car_number_checker(car_number):
-    if int(car_number) % 2 == 0:
+    if int(car_number[-1]) % 2 == 0:
         return "is_even"
     else:
         return "is_odd"
@@ -94,6 +94,7 @@ car_dict = {}
 license_day_count = 1
 expiry_dir = {}
 hist_dir = {}
+car_reg_dir = {}
 
 while is_running:
     command, *data = input().split()
@@ -109,6 +110,7 @@ while is_running:
             for user in user_list:
                     if user.user_name not in username_list:
                         username_list.append(user.user_name)
+                        user.reg_date = data[1]
     
     elif command == "REGISTER_CAR":
         for user in user_list:
@@ -123,12 +125,15 @@ while is_running:
                 if user.user_name == data[0]:
                     user.car_list.append(data[1])
                     car_number_list.append(data[1])
+                    car_reg_dir.update({data[1]: data[2]})
                     print("REGISTER CAR DONE")
                     break
                 
 
     elif command == "NEW_RECORD":
         if data[0] not in car_number_list:
+            print("INVALID CAR PLATE")
+        elif not expiry_checker(data[1], car_reg_dir.get(data[0])):
             print("INVALID CAR PLATE")
         else:
             day = day_checker(day_counter(data[1]))
@@ -163,6 +168,8 @@ while is_running:
                 print("INVALID USERNAME")
         elif data[1] not in car_number_list:
             print("INVALID CAR PLATE")
+        elif not expiry_checker(data[3], car_reg_dir.get(data[1])):
+            print("INVALID CAR PLATE")
         else:  
             for user in user_list:
                 if user.user_name != data[0]:
@@ -182,7 +189,7 @@ while is_running:
                     hist_dir.update({data[1]: data[3]})
                     print("BUY LICENSE DONE")
                     break
-                
+
     elif command == "ADD_BALANCE":
         if data[0] not in username_list:
             print("INVALID USERNAME")
@@ -211,6 +218,8 @@ while is_running:
     elif command == "GET_LICENSE_DEADLINE":
         if data[0] not in car_number_list:
             print("INVALID CAR PLATE")
+        elif not expiry_checker(data[1], car_reg_dir.get(data[0])):
+            print("INVALID CAR PLATE")
         else:
             if hist_dir != {}:
                 if not expiry_checker(data[1], hist_dir.get(data[0])):
@@ -221,6 +230,7 @@ while is_running:
                     if has_expired:
                         print(date_operator(data[1], 1))
                     else:
+                        temp_date = date_operator(temp_date, 1)
                         print(temp_date)
             else:
                 temp_date = expiry_dir.get(data[0]) if data[0] in expiry_dir.keys() else "1400/01/01"
@@ -228,6 +238,7 @@ while is_running:
                 if has_expired:
                     print(date_operator(data[1], 1))
                 else:
+                    temp_date = date_operator(temp_date, 1)
                     print(temp_date)
             
 
